@@ -1,48 +1,65 @@
- *Tech Stach*
+# BookStore API
 
-Backend:Node.js,Express.js
-Database: PostgreSQL with sequelize ORM
-Authentication: JWT(Json web token)
-security: bcrypt for password hashing
+A comprehensive RESTful API for managing books, users, and reviews built with Node.js, Express.js, and PostgreSQL.
 
+## Tech Stack
 
-*Clone the Repository*
-git clone `https://github.com/Theja4849/BookStore.git`
-cd BookStore
+- **Backend**: Node.js, Express.js
+- **Database**: PostgreSQL with Sequelize ORM
+- **Authentication**: JWT (JSON Web Token)
+- **Security**: bcrypt for password hashing
 
-*Install dependencies*
-npm install
+## Getting Started
 
-*DataBase setup*
-create a PostGres database named 'BookStore'
+### Prerequisites
 
+- Node.js (v14 or higher)
+- PostgreSQL (v12 or higher)
+- npm or yarn
 
-*environment configurations*
-create a .env file in the root directtory with the follwoing variables
+### Installation
 
-PORT=5000
-DB_NAME=BookStore
-DB_PORT=5432
-DB_HOST=localhost
-DB_USER=postgres
-DB_PASSWORD=root
-JWT_SECRET=f8b2a7c3d9a41a6b91c7d5e6f3a2b0c4d7e1f5a9b8c3d2e4f1a7c9d0b2e3f6a1
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/Theja4849/BookStore.git
+   cd BookStore
+   ```
 
+2. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-*Run the Application*
-npm start
+3. **Database Setup**
+   - Create a PostgreSQL database named 'BookStore'
 
+4. **Environment Configuration**
+   Create a `.env` file in the root directory with the following variables:
+   ```env
+   PORT=5000
+   DB_NAME=BookStore
+   DB_PORT=5432
+   DB_HOST=localhost
+   DB_USER=postgres
+   DB_PASSWORD=root
+   JWT_SECRET=f8b2a7c3d9a41a6b91c7d5e6f3a2b0c4d7e1f5a9b8c3d2e4f1a7c9d0b2e3f6a1
+   ```
 
-The server will start on `http://localhost:5000`
+5. **Run the Application**
+   ```bash
+   npm start
+   ```
 
+   The server will start on `http://localhost:5000`
 
+## Database Schema
 
-*Relationships*
-users-> Reviews : one user can have multiple reviews
-Books-> Reviews : one book can have multiple reviews
+### Relationships
+- **Users → Reviews**: One user can have multiple reviews
+- **Books → Reviews**: One book can have multiple reviews
 
-
-*Users Table*
+### Users Table
+```sql
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     userName VARCHAR NOT NULL,
@@ -52,9 +69,10 @@ CREATE TABLE users (
     createdAt TIMESTAMP DEFAULT NOW(),
     updatedAt TIMESTAMP DEFAULT NOW()
 );
+```
 
-
-* Books Table
+### Books Table
+```sql
 CREATE TABLE books (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR NOT NULL,
@@ -65,8 +83,10 @@ CREATE TABLE books (
     updatedAt TIMESTAMP DEFAULT NOW(),
     UNIQUE(title, author)
 );
+```
 
-*Reviews Table*
+### Reviews Table
+```sql
 CREATE TABLE reviews (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
@@ -77,30 +97,36 @@ CREATE TABLE reviews (
     updatedAt TIMESTAMP DEFAULT NOW(),
     UNIQUE(userId, bookId)
 );
+```
 
-*API Documentation*
+## API Documentation
 
-//Base URL
+### Base URL
 `http://localhost:5000/api/v1`
 
-* Authentication
-except user routes remaining routes require authentication
-Authorization: Bearer <your_jwt_token>
+### Authentication
+- **Note**: Except user routes, all remaining routes require authentication
+- **Authorization Header**: `Authorization: Bearer <your_jwt_token>`
 
+---
 
-*User Endpoints*
+## User Endpoints
 
-* Register User
+### Register User
+**POST** `/api/v1/user`
 
-POST /api/v1/user
+**Request Body:**
+```json
 {
     "userName": "saiteja",
     "email": "saiteja@gmail.com",
     "password": "Saiteja@123",
     "gender": "male"
 }
+```
 
-Response:
+**Response:**
+```json
 {
     "message": "user created successfully..",
     "data": {
@@ -110,40 +136,49 @@ Response:
         "gender": "male"
     }
 }
+```
 
- *Login User*
+### Login User
+**POST** `/api/v1/user/login`
 
-POST /api/v1/user/login
+**Request Body:**
+```json
 {
     "email": "saiteja@gmail.com",
     "password": "Saiteja@123"
 }
+```
 
-Response:
-
+**Response:**
+```json
 {
-    "message": "Login succesfull...",
+    "message": "Login successful...",
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
+```
 
+---
 
-*Book Endpoints (Authentication Required)*
+## Book Endpoints (Authentication Required)
 
-*Create Book*
+### Create Book
+**POST** `/api/v1/book`
 
-POST /api/v1/book
+**Request Body:**
+```json
 {
     "title": "The Great Gatsby",
     "author": "F. Scott Fitzgerald",
     "genre": "Classic Literature",
     "publishedYear": 1925
 }
+```
 
-*Get All Books (with pagination and search)*
-   GET /api/v1/book?page=1&limit=10&q=gatsby
+### Get All Books (with pagination and search)
+**GET** `/api/v1/book?page=1&limit=10&q=gatsby`
 
-Response:
-
+**Response:**
+```json
 {
     "success": true,
     "data": [
@@ -162,81 +197,69 @@ Response:
         "pageSize": 10
     }
 }
+```
 
-*Get Book Details with Reviews(with pagination)*
+### Get Book Details with Reviews (with pagination)
+**GET** `/api/v1/book/{book_id}?page=1&limit=5`
 
-GET /api/v1/book/{book_id}?page=1&limit=5
+### Add Review to Book
+**POST** `/api/v1/book/{book_id}/review`
 
-
- *Add Review to Book*
-
-POST /api/v1/book/{book_id}/review
-
+**Request Body:**
+```json
 {
     "rating": 5,
     "comment": "Excellent book! Highly recommended."
 }
+```
 
+---
 
- *Review Endpoints (Authentication Required)*
-   Update Review
+## Review Endpoints (Authentication Required)
 
-PUT /api/v1/reviews/{review_id}
+### Update Review
+**PUT** `/api/v1/reviews/{review_id}`
 
+**Request Body:**
+```json
 {
     "rating": 4,
     "comment": "Updated review comment"
 }
+```
 
-*Delete Review*
+### Delete Review
+**DELETE** `/api/v1/reviews/{review_id}`
 
-DELETE /api/v1/reviews/{review_id}
+---
 
+## Design Decisions
 
+### Database Design Decisions
+1. **Soft Deletes**: Not implemented
 
+### Validation Rules
+1. **Password Complexity**: Minimum 8 characters with uppercase, lowercase, number, and special character
+2. **Rating Range**: 1-5 scale for reviews
+3. **Comment Limit**: 500 characters maximum for review comments
+4. **Email Format**: Standard email regex validation
 
-*Design Decisions*
+### Pagination Strategy
+1. **Default Limit**: 10 items per page (reasonable for most use cases)
+2. **Maximum Limit**: 50 items per page (prevents server overload)
+3. **Offset-based**: Simple and sufficient for this use case
 
+### Search Functionality
+1. **Case-insensitive**: Uses PostgreSQL ILIKE for better user experience
+2. **Multi-field Search**: Searches across title, author, and genre
+3. **Partial Matching**: Supports substring searches
 
-*Database Design Decisions*
-  1.Soft Deletes: Not implemented 
+### Error Handling
+1. **Consistent Response Format**: Standardized error messages
+2. **HTTP Status Codes**: Proper status codes for different scenarios
+3. **Input Validation**: Server-side validation for all inputs
 
-**alidation Rules*
-
-  1.Password Complexity: Minimum 8 characters with uppercase, lowercase,    number, and special character
-
-  2.Rating Range: 1-5 scale for reviews
-
-  3.Comment Limit: 500 characters maximum for review comments
-
-  4.Email Format: Standard email regex validation
-
-* Pagination Strategy
-   1.Default Limit: 10 items per page (reasonable for most use cases)
-   2.Maximum Limit: 50 items per page (prevents server overload)
-   3.Offset-based: Simple and sufficient for this use case
-
-* Search Functionality
-   1.Case-insensitive: Uses PostgreSQL ILIKE for better user experience
-   2.Multi-field Search**: Searches across title, author, and genre
-   3.Partial Matching: Supports substring searches
-
-*Error Handling*
-   1.Consistent Response Format: Standardized error messages
-   2.HTTP Status Codes: Proper status codes for different scenarios
-   3.Input Validation: Server-side validation for all inputs
-
-*Security Considerations*
-   1.Password Hashing: bcryptjs with salt rounds for secure password storage
-   2.SQL Injection Prevention: Sequelize ORM provides protection
-
-
-
-
-
-
-
-
-
-
+### Security Considerations
+1. **Password Hashing**: bcryptjs with salt rounds for secure password storage
+2. **SQL Injection Prevention**: Sequelize ORM provides protection
 
